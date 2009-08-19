@@ -11,8 +11,8 @@ module GeoPlanet
         query_params[:appid] ||= GeoPlanet.appid # use default appid if not provided
 
         raise ArgumentError, "appid or q filter missing" if query_params[:appid].nil? || resource_path == 'places' && filters[:q].nil? # required
+        q = create_q_param(filters[:q]) if filters[:q]
 
-        q = ".q('#{filters[:q]}')" if filters[:q]
         type = ".type('#{filters[:type]}')" if filters[:type]
         
         query_string = q && type ? "$and(#{q},#{type})" : "#{q}#{type}"
@@ -22,6 +22,7 @@ module GeoPlanet
         
         query_string += "#{matrix_params}#{query_params}"
         
+        puts "#{GeoPlanet::API_URL}#{resource_path}#{query_string}"
         "#{GeoPlanet::API_URL}#{resource_path}#{query_string}"
       end
       
@@ -59,17 +60,27 @@ module GeoPlanet
       def extract_filters(options)
         filters = %w(q type)
         options[:type] = options[:type].join(",") if options[:type].is_a?(Array)
-        Hash[*(options.select{|k,v| filters.include?(k.to_s)}).flatten]
+        options.inject({}) { |hash,e| filters.include?(e.first.to_s) ? hash.merge( { e.first => e.pop } ) : hash }
       end
       
       def extract_matrix_params(options)
         matrix_params = %w(start count)
-        Hash[*(options.select{|k,v| matrix_params.include?(k.to_s)}).flatten]
+        options.inject({}) { |hash,e| matrix_params.include?(e.first.to_s) ? hash.merge( { e.first => e.pop } ) : hash }
       end
       
       def extract_query_params(options)
         query_params = %w(lang format callback select appid)
-        Hash[*(options.select{|k,v| query_params.include?(k.to_s)}).flatten]
+        options.inject({}) { |hash,e| query_params.include?(e.first.to_s) ? hash.merge( { e.first => e.pop } ) : hash }
+      end
+      
+      def create_q_param(q_options)
+        #normal q options, quoted
+        return ".q('#{q_options}')" if q_options.kind_of?(String)
+        
+        #if you want to provide focus, you need to make it an array like thing
+        #where the country code is NOT quoted. 
+        return ".q('#{q_options[0]}',#{q_options[1]})" if q_options.kind_of?(Array)
+        return ''
       end
     end
   end

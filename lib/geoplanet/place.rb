@@ -16,7 +16,7 @@ module GeoPlanet
 
     # Class methods
     def self.search(text, options = {})
-      text = URI.encode(text)
+      text = self.encode_text(text)
       url = build_url('places', options.merge(:q => text, :format => 'json'))
       puts "Yahoo GeoPlanet: GET #{url}" if GeoPlanet.debug
       get_then_parse(url)
@@ -115,5 +115,10 @@ module GeoPlanet
       self.woeid.to_i
     end
     
+    
+    def self.encode_text(text)
+      return URI.encode(text) if text.kind_of?(String)
+      return text.collect {|item| URI.encode(item) } if text.kind_of?(Array)
+    end
   end
 end

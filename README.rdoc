@@ -100,7 +100,7 @@ ActiveSupport::JSON instead.
 
 == INSTALL:
 
-* gem install carlosparamio-geoplanet --source http://gems.github.com
+* gem install rabble-geoplanet --source http://gems.github.com
 
 == LICENSE:
 
@@ -130,3 +130,4 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 == CONTRIBUTORS:
 
 Nielsomat <http://github.com/Nielsomat> : Usage of ActiveSupport::JSON when available
+Rabble <http://github.com/rabble> : Added support 'focus' to refine place lookups. 
